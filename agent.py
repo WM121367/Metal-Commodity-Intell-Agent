@@ -11,6 +11,12 @@ from uagents import Agent, Context, Model, Protocol
 
 CURRENT_VERSION = "1.1.0"
 
+# Agentverse側のコード内
+agent = Agent(
+    name="metal_commodity_agent",
+    seed=""
+)
+
 # --------------------------------------------------
 # 📊 データ構造定義 (Protocols)
 # --------------------------------------------------
