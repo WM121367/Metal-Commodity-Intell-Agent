@@ -1,8 +1,3 @@
----
-
-## 2. Metal-Commodity-Intell-Agent 用 README
-
-```markdown
 # 🪙 Metal & Tokenized Commodity Intelligence Agent (v1.1.0)
 
 > **On-Chain Physical Assets (PAXG/XAUT) & Global Commodity Supply Constraints Intelligence Engine.**
