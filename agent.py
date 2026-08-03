@@ -11,10 +11,9 @@ from uagents import Agent, Context, Model, Protocol
 
 CURRENT_VERSION = "1.1.0"
 
-# Agentverse側のコード内
 agent = Agent(
     name="metal_commodity_agent",
-    seed=""
+    seed="xxxxxxxxxxxx"
 )
 
 # --------------------------------------------------
@@ -29,7 +28,7 @@ class MetalDataQueryResponse(Model):
     onchain_paxg_xaut: dict
     comex_inventory_sentiment: dict
     central_bank_gold_trends: dict
-    mine_supply_constraints: dict  # 👈 金鉱山生産・供給制約データを追加！
+    mine_supply_constraints: dict
     us_debt_macro_metrics: dict
     reasoning_summary: str
 
@@ -79,7 +78,6 @@ def fetch_us_debt_clock_metrics() -> dict:
 def fetch_metal_market_data() -> dict:
     """COMEX在庫・中銀保有量・鉱山生産供給制約・トークン化コモディティの統合分析"""
     
-    # ⛏️ 鉱山生産量 vs 中銀吸収量の需給計算ロジック
     annual_mine_production = 3600.0  # 年間世界金鉱山採掘量 (tonnes)
     central_bank_annual_buy = 1000.0  # 中央銀行の年間買い増しペース (tonnes)
     cb_absorption_rate = (central_bank_annual_buy / annual_mine_production) * 100
@@ -99,7 +97,6 @@ def fetch_metal_market_data() -> dict:
             "quarterly_trend": "Central banks continued net purchases (~240+ tonnes/quarter).",
             "macro_driver": "De-dollarization & reserve diversification."
         },
-        # 💡 追加：鉱山供給制約と中銀吸収率のリアルタイム計算データ
         "mine_supply_data": {
             "annual_global_mine_output": f"{annual_mine_production:,.0f} tonnes/year (Plateauing trend)",
             "central_bank_net_absorption": f"~{central_bank_annual_buy:,.0f} tonnes/year",
@@ -140,9 +137,8 @@ async def handle_metal_delivery(ctx: Context, sender: str, msg: CommitPayment):
         onchain_paxg_xaut=market_data["onchain_tokens"],
         comex_inventory_sentiment=market_data["comex_data"],
         central_bank_gold_trends=market_data["central_bank_data"],
-        mine_supply_constraints=market_data["mine_supply_data"], # 👈 レポートに組み込み！
+        mine_supply_constraints=market_data["mine_supply_data"],
         us_debt_macro_metrics=debt_metrics,
-        # 💡 自律推論テキストに「鉱山採掘量の約27.8%が民間市場へ回る前に中銀へ吸収されている」文脈を追加
         reasoning_summary=(
             "High conviction in tokenized physical assets: "
             "Global mine supply is plateauing while Central Banks directly absorb ~27.8% of new annual gold output. "
