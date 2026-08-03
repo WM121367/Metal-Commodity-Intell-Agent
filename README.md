@@ -1,66 +1,52 @@
-# 🪙 Tokenized Metals, COMEX, Mine Supply & US Debt Macro Commodity Intelligence Agent
+# 🤖 13-Chain Unified Ledger RWA & Macro Intelligence Agent (v2.2.0)
 
-An autonomous intelligence node focused on Tokenized Gold/Silver (PAXG, Tether Gold XAUT), COMEX physical warehouse stocks, Central Bank gold reserve accumulation, global mine production constraints, and US Debt Clock inflation metrics.
+> **A Multi-Chain On-Chain Surveillance & Global Macro Intelligence Engine powered by uAgents Protocol.**
 
----
-
-## 🚀 Features
-
-* **Tokenized Gold/Silver On-Chain Tracking:** Monitors PAXG and XAUT mint/burn events and vault-backed liquidity movements on Ethereum.
-* **Mine Supply Bottleneck Analysis (New):** Evaluates physical output limits (~3,600t/year global mine production plateau) against Central Bank net absorption (~1,000t/year) to calculate structural supply crunches.
-* **COMEX Warehouse Inventory Analysis:** Tracks daily registered vs. eligible inventory shifts in physical depositories.
-* **Central Bank Reserve Accumulation:** Integrates World Gold Council (WGC) quarterly net purchase metrics and de-dollarization trends.
-* **US Debt Clock Macro Correlation:** Correlates fiat devaluation ($39.9T+ US debt load) and paper-to-physical leverage ratios with tokenized hard asset demand.
+`13-Chain Unified Ledger Spy Agent` は、13の主要ブロックチェーン（EVM, Non-EVM, RWA専用チェーン）上のスマートコントラクトイベントや流動性移動をリアルタイム監視し、超国家機関・政府・主要メガバンクの一次情報（RSS / IR）と統合解析して高精度なアルファシグナルを生成する自律型AI Agentです。
 
 ---
 
-## 💰 Data Packages & Pricing (FET)
+## 🚀 Key Features
 
-| Package Name | Price | Description |
-| :--- | :--- | :--- |
-| `PAXG` / `XAUT` | **0.2 FET** | Specific tokenized gold/silver on-chain status & basic metrics. |
-| `ALL` | **0.5 FET** | **Full Commodity Report:** On-Chain PAXG/XAUT + COMEX Vault Stocks + **Mine Supply Constraints (~27.8% CB Absorption)** + US Debt Clock Inflation Metrics + Macro Reasoning. |
+* **13-Chain Multi-Ledger Monitoring:**
+  * Sepolia (Ethereum), Bitcoin, XRPL, Linea, Base, Solana, Hedera, TRON, Canton, Stellar, Algorand, XDC, Quant の全 **13-Chain** のブロックハイト、イベントログ、コントラクト更新を監視。
+  * LINK, CCIP Router, Ondo Finance などの特定RWAコントラクトの `Transfer` イベントをリアルタイム検知。
+* **Global Macro & Institutional Intelligence Engine:**
+  * 超国家機関・公的機関・メガバンク（BRICS Pay, WEF, US House Financial Services Committee, SEC, CFTC, US Treasury, Federal Reserve, ECB, BIS, Social Security Administration）のプレスリリースを自動巡回。
+  * `KEYWORD_MAP` 照合アルゴリズムによるニュースとオンチェーンアクティビティの自動相関推論（Confidence Score 算出）。
+* **Cross-Chain RWA & Liquidity Signal Generation:**
+  * BlackRock MMF (BUIDL) の Mint/Burn イベントと XRPL 上の RLUSD 流動性・発行体の動きを組み合わせた相関シグナルの生成。
+* **uAgents Protocol Integration & Dynamic Quoting:**
+  * uAgents 規格に準拠。クエリ範囲（`full_intelligence`, `macro`, `summary`, `single_chain`）に応じた動的な見積もり（FET決済）と着金確認後の自動データ納品処理。
+* **Embedded Legal & Security Guardrails:**
+  * 無登録投資助言リスクを回避する `NOT FINANCIAL ADVICE` 免責事項（Disclaimer）の出力レスポンス自動挿入。
+  * 悪意ある外部テキストに対するサニタイズ（プロンプトインジェクション対策）とセキュリティ設計。
 
 ---
 
-## 🧠 Example Signal Output (`ALL`)
+## 🏗️ Architecture Overview
 
-```json
-{
-  "agent_version": "1.1.0",
-  "timestamp": 1785705500.0,
-  "onchain_paxg_xaut": {
-    "paxg_status": "Active mint/burn on Ethereum",
-    "xaut_status": "Active mint/burn on Ethereum",
-    "gold_silver_ratio": "84.2 (Historical high range)"
-  },
-  "mine_supply_constraints": {
-    "annual_global_mine_output": "3,600 tonnes/year (Plateauing trend)",
-    "central_bank_net_absorption": "~1,000 tonnes/year",
-    "supply_absorption_ratio": "27.8% of new mine output locked up by central banks",
-    "supply_bottleneck_status": "CRITICAL_SUPPLY_CRUNCH"
-  },
-  "comex_inventory_sentiment": {
-    "gold_registered_vault_oz": "27.0M oz",
-    "silver_registered_vault_oz": "331.4M oz",
-    "inventory_trend": "Slight drawdown in registered vaults indicating physical settlement demand."
-  },
-  "us_debt_macro_metrics": {
-    "total_debt": "$39.9T+",
-    "daily_interest": "$3.5B+",
-    "paper_to_silver_ratio": "40.2x (High Paper Leverage)",
-    "fiat_devaluation_signal": "CRITICAL_INFLATION_PRESSURE"
-  },
-  "reasoning_summary": "High conviction in tokenized physical assets: Global mine supply is plateauing while Central Banks directly absorb ~27.8% of new annual gold output. Combined with COMEX vault drawdowns and US Debt Clock inflation pressures ($39.9T+), structural scarcity strongly underpins on-chain physical assets (PAXG/XAUT)."
-}
+```text
+ ┌─────────────────────────────────────────────────────────────┐
+ │    Global Macro & Regulatory RSS Collector (BRICS/WEF/Fed)   │
+ └──────────────────────────────┬──────────────────────────────┘
+                                │ News Text & Topic Extraction
+                                ▼
+ ┌─────────────────────────────────────────────────────────────┐
+ │                13-Chain Intelligence Core Engine            │
+ └──────────────┬──────────────────────────────┬───────────────┘
+                │                              │
+                ▼                              ▼
+  【13-Chain On-Chain Watcher】             【Correlated Signal Processing】
+  ・Alchemy / XRPL / Mempool Node            ・Confidence Score Scoring (0.92)
+  ・BUIDL / RLUSD / CCIP Events              ・Dynamic FET Quote & uAgent Delivery
 ```
-🔌 Protocols Supported
-MetalDataQueryRequest / MetalDataQueryResponse
+🛠️ Usage & Protocols
+Message Models
+DataQueryRequest: chain_name ("full", "macro", "all", "sepolia" など) を指定して照会。
 
-Agent Payment Protocol (FET Direct Payment via RequestPayment / CommitPayment)
+RequestPayment / CommitPayment: 規定料金（0.1 ~ 3.0 FET）の支払い後、即時にデータ納品 JSON を返却。
 
 ⚠️ Disclaimer
-Not Financial Advice (NFA) / Do Your Own Research (DYOR):
-
-This agent is an automated data processing node designed solely for informational, research, and monitoring purposes. The intelligence provided (including on-chain activity, COMEX inventory, mine supply metrics, US debt metrics, and market sentiment reasoning) does not constitute investment, financial, or trading advice. Users and autonomous buyer agents should conduct independent research (DYOR) before making any financial decisions.
+This agent is developed for informational and analytical purposes only. NOT FINANCIAL ADVICE. All analytical signals produced by this 13-Chain agent should be used purely for research and tool-level insights.
 ```
