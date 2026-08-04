@@ -9,12 +9,14 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from uagents import Agent, Context, Model, Protocol
 
-CURRENT_VERSION = "1.1.0"
+CURRENT_VERSION = "1.2.0"  # 👈 CoinGecko Gold/Metal Categories & X402/Agentic Payments Integrated
 
 agent = Agent(
     name="metal_commodity_agent",
     seed="xxxxxxxxxxxx"
 )
+
+latest_market_data = {}
 
 # --------------------------------------------------
 # 📊 データ構造定義 (Protocols)
@@ -26,6 +28,7 @@ class MetalDataQueryResponse(Model):
     agent_version: str
     timestamp: float
     onchain_paxg_xaut: dict
+    coingecko_metal_intelligence: dict  # 👈 CoinGecko リアルタイム市場データ
     comex_inventory_sentiment: dict
     central_bank_gold_trends: dict
     mine_supply_constraints: dict
@@ -49,6 +52,32 @@ class CommitPayment(Model):
     recipient: str
     transaction_id: str
     reference: str
+
+# --------------------------------------------------
+# 🌐 CoinGecko API Collector (Gold/Metal & Commodity)
+# --------------------------------------------------
+COINGECKO_METAL_CATEGORIES = [
+    "gold-backed",
+    "commodity-backed"
+]
+
+def fetch_coingecko_metal_category(category_id: str) -> list:
+    url = "https://api.coingecko.com/api/v3/coins/markets"
+    params = {
+        "vs_currency": "usd",
+        "category": category_id,
+        "order": "market_cap_desc",
+        "per_page": 20,
+        "page": 1,
+        "sparkline": "false"
+    }
+    try:
+        res = requests.get(url, params=params, timeout=10)
+        if res.status_code == 200:
+            return res.json()
+    except Exception as e:
+        print(f"⚠️ CoinGecko API取得エラー ({category_id}): {e}")
+    return []
 
 # --------------------------------------------------
 # 🌐 データ収集 & マクロ推論エンジン
@@ -95,7 +124,7 @@ def fetch_metal_market_data() -> dict:
         },
         "central_bank_data": {
             "quarterly_trend": "Central banks continued net purchases (~240+ tonnes/quarter).",
-            "macro_driver": "De-dollarization & reserve diversification."
+            "macro_driver": "De-dollarization, X402 Agentic Payment rails & reserve diversification."
         },
         "mine_supply_data": {
             "annual_global_mine_output": f"{annual_mine_production:,.0f} tonnes/year (Plateauing trend)",
@@ -104,6 +133,24 @@ def fetch_metal_market_data() -> dict:
             "supply_bottleneck_status": "CRITICAL_SUPPLY_CRUNCH"
         }
     }
+
+# --------------------------------------------------
+# ⏱️ 定期タスク (CoinGecko スキャン & バックグラウンド処理)
+# --------------------------------------------------
+@agent.on_interval(period=60.0)
+async def check_metal_markets_task(ctx: Context):
+    global latest_market_data
+    loop = asyncio.get_event_loop()
+    
+    # 13-Chain の後に実行されるスケジュール構成
+    for cat_id in COINGECKO_METAL_CATEGORIES:
+        tokens = await loop.run_in_executor(None, fetch_coingecko_metal_category, cat_id)
+        if tokens:
+            latest_market_data[cat_id] = tokens
+            for t in tokens:
+                p_change = t.get("price_change_percentage_24h") or 0.0
+                if p_change >= 5.0:  # 貴金属の+5%変動を即時キャッチ
+                    ctx.logger.info(f"🚨 [{cat_id.upper()} コモディティ急沸騰] {t.get('symbol','').upper()}: +{p_change:.2f}% (24h)")
 
 # --------------------------------------------------
 # 💰 見積もり ＆ 自動納品ハンドラー
@@ -120,7 +167,7 @@ async def handle_metal_quote(ctx: Context, sender: str, msg: MetalDataQueryReque
         recipient=str(agent.wallet.address()),
         deadline_seconds=300,
         reference=f"quote_metal_{requested}_{int(time.time())}",
-        description=f"Tokenized Metals (PAXG/XAUT) & Mine Supply Constraints Intelligence ({requested})"
+        description=f"Tokenized Metals (PAXG/XAUT), CoinGecko Category & Mine Supply Constraints Intelligence ({requested})"
     )
     await ctx.send(sender, payment_quote)
 
@@ -135,6 +182,7 @@ async def handle_metal_delivery(ctx: Context, sender: str, msg: CommitPayment):
         agent_version=CURRENT_VERSION,
         timestamp=time.time(),
         onchain_paxg_xaut=market_data["onchain_tokens"],
+        coingecko_metal_intelligence=latest_market_data,  # 👈 CoinGecko リアルタイム市場データ納品
         comex_inventory_sentiment=market_data["comex_data"],
         central_bank_gold_trends=market_data["central_bank_data"],
         mine_supply_constraints=market_data["mine_supply_data"],
@@ -142,7 +190,8 @@ async def handle_metal_delivery(ctx: Context, sender: str, msg: CommitPayment):
         reasoning_summary=(
             "High conviction in tokenized physical assets: "
             "Global mine supply is plateauing while Central Banks directly absorb ~27.8% of new annual gold output. "
-            "Combined with COMEX vault drawdowns and US Debt Clock inflation pressures ($39.9T+), "
+            "Combined with COMEX vault drawdowns, CoinGecko Metal/Gold category trendings, X402 payment settlement demands, "
+            "and US Debt Clock inflation pressures ($39.9T+), "
             "structural scarcity strongly underpins on-chain physical assets (PAXG/XAUT)."
         )
     )
@@ -152,3 +201,6 @@ async def handle_metal_delivery(ctx: Context, sender: str, msg: CommitPayment):
 @agent.on_event("startup")
 async def startup_handler(ctx: Context):
     ctx.logger.info(f"🚀 Metal & Commodity Intelligence Agent (Ver {CURRENT_VERSION}) 起動! | Address: {agent.address}")
+
+if __name__ == "__main__":
+    agent.run()
