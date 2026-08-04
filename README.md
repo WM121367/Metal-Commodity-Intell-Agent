@@ -1,8 +1,8 @@
-# 🪙 Metal & Tokenized Commodity Intelligence Agent (v1.1.0)
+# 🪙 Metal & Tokenized Commodity Intelligence Agent (v1.2.0)
 
-> **On-Chain Physical Assets (PAXG/XAUT) & Global Commodity Supply Constraints Intelligence Engine.**
+> **On-Chain Physical Assets (PAXG/XAUT), CoinGecko Metal Scanner & Global Commodity Supply Constraints Intelligence Engine.**
 
-`Metal & Commodity Intelligence Agent` は、トークン化ゴールド/シルバー（PAXG, XAUT）のオンチェーンミント・バーン情報、COMEX金・銀保管庫の現物在庫推移、米国債債務状況、およびグローバル金鉱山採掘量と中央銀行による現物吸収率をリアルタイムで解析する自律型AI Agentです。同エコシステム内の **13-Chain** 分析基盤と連動して包括的なマクロコモディティシグナルを提供します。
+`Metal & Commodity Intelligence Agent` は、トークン化ゴールド/シルバー（PAXG, XAUT）のオンチェーンミント・バーン情報、CoinGecko API 経由の `gold-backed` / `commodity-backed` リアルタイム市場データ、COMEX金・銀保管庫の現物在庫推移、米国債債務状況、およびグローバル金鉱山採掘量と中央銀行による現物吸収率をリアルタイムで解析する自律型AI Agentです。同エコシステム内の **13-Chain** 分析基盤と連動し、13-Chain 監視の実行後に本エージェントのスキャンを実行する構成で include されています。
 
 ---
 
@@ -11,9 +11,12 @@
 * **Tokenized Metal On-Chain Surveillance:**
   * Ethereum 上の PAXG および XAUT のアクティブな Mint/Burn 状況のモニタリング。
   * Gold/Silver Ratio（金銀比率）の計算とヒストリカルレンジ分析。
+* **CoinGecko Metal & Gold Category Scanner (NEW):**
+  * `gold-backed` および `commodity-backed` カテゴリのトークン価格・24時間騰落率・出来高を自動追跡。
+  * 貴金属トークンの価格変動（+5%以上）を即座に感知し、シグナル生成。
 * **COMEX Vault & Central Bank Gold Analytics:**
   * COMEX（Registered Vault）における金・銀の物理現物在庫の引き出し傾向の追跡。
-  * 世界の中央銀行による四半期ごとの純買い増しデータおよび脱ドル化（De-dollarization）トレードの追跡。
+  * 世界の中央銀行による四半期ごとの純買い増しデータ、脱ドル化（De-dollarization）トレード、および **X402 Protocol** 経由のエージェント決済・現物裏付け需要の分析。
 * **Mine Supply Bottleneck Dynamic Engine:**
   * 年間世界金鉱山生産量（~3,600t）に対する中央銀行の年間吸収量（~1,000t / 約27.8%）のリアルタイムタイトネス動的計算。
   * 物理現物市場の供給制約（Critical Supply Crunch）シグナルの生成。
@@ -26,7 +29,7 @@
 
 ## 🔗 Synergy with 13-Chain Ecosystem
 
-本Agentは、**13-Chain** 全体にわたるRWA（現実資産トークン化）動向と密接に連携しています。超国家機関の決定やパブリックチェーン上の流動性変化（RLUSDやBUIDL等）が物理コモディティ市場へ与える影響を補完する「実物資産インテリジェンス層」として機能します。
+本Agentは、**13-Chain** 全体にわたるRWA（現実資産トークン化）動向と密接に連携しています。13-Chain 側の処理完了後に本エージェントの巡回ロジックが実行され、パブリックチェーン上の流動性変化（RLUSDやBUIDL等）が物理コモディティ市場へ与える影響を補完する「実物資産インテリジェンス層」として機能します。
 
 ---
 
@@ -37,12 +40,21 @@
 {
   "symbol": "ALL"
 }
-
 {
-  "agent_version": "1.1.0",
+  "agent_version": "1.2.0",
   "onchain_paxg_xaut": {
     "paxg_status": "Active mint/burn on Ethereum",
     "gold_silver_ratio": "84.2 (Historical high range)"
+  },
+  "coingecko_metal_intelligence": {
+    "gold-backed": [
+      {
+        "id": "pax-gold",
+        "symbol": "paxg",
+        "current_price": 2400.5,
+        "price_change_percentage_24h": 1.2
+      }
+    ]
   },
   "mine_supply_constraints": {
     "annual_global_mine_output": "3,600 tonnes/year",
