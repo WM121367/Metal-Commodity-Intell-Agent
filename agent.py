@@ -7,14 +7,13 @@ import requests
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
+import os
 from uagents import Agent, Context, Model, Protocol
 
 CURRENT_VERSION = "1.3.0"  # 👈 X402 Payment Verification & Retry Protocol Integrated
 
-agent = Agent(
-    name="metal_commodity_agent",
-    seed="xxxxxxxxxxxx"
-)
+AGENT_SEED = os.getenv("AGENT_SEED", "xxxxxxxxxxxxxxx")
+agent = Agent(name="onchain_event_agent")
 
 latest_market_data = {}
 
