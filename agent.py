@@ -34,24 +34,6 @@ class MetalDataQueryResponse(Model):
     us_debt_macro_metrics: dict
     reasoning_summary: str
 
-class Funds(Model):
-    amount: str
-    currency: str = "FET"
-    payment_method: str = "fet_direct"
-
-class RequestPayment(Model):
-    accepted_funds: list[Funds]
-    recipient: str
-    deadline_seconds: int = 300
-    reference: str
-    description: str
-
-class CommitPayment(Model):
-    funds: Funds
-    recipient: str
-    transaction_id: str
-    reference: str
-
 class ChatMessage(Model):
     message: str
 
@@ -85,7 +67,6 @@ def fetch_coingecko_metal_category(category_id: str) -> list:
 # 🌐 データ収集 & マクロ推論エンジン
 # --------------------------------------------------
 def fetch_us_debt_clock_metrics() -> dict:
-    """US Debt Clock / 米国債・ドル減価インデックス"""
     try:
         url = "https://www.us-debt-clock.com/api/gpt/current-debt"
         res = requests.get(url, timeout=5)
@@ -107,7 +88,6 @@ def fetch_us_debt_clock_metrics() -> dict:
     }
 
 def fetch_metal_market_data() -> dict:
-    """COMEX在庫・中銀保有量・鉱山生産供給制約・トークン化コモディティの統合分析"""
     annual_mine_production = 3600.0
     central_bank_annual_buy = 1000.0
     cb_absorption_rate = (central_bank_annual_buy / annual_mine_production) * 100
@@ -136,25 +116,6 @@ def fetch_metal_market_data() -> dict:
     }
 
 # --------------------------------------------------
-# 🔄 X402 / uAgents Retry Verification Engine
-# --------------------------------------------------
-async def verify_onchain_payment_with_retry(ctx: Context, tx_id: str, expected_amount: str, max_retries: int = 3, delay: float = 3.0) -> bool:
-    """
-    X402 / uAgents レール上のオンチェーン決済着金をリトライ付きで検証する
-    """
-    for attempt in range(1, max_retries + 1):
-        ctx.logger.info(f"🔍 [Payment Verification] Try {attempt}/{max_retries} | TxHash: {tx_id}")
-        
-        if tx_id and len(tx_id) >= 10 and not tx_id.startswith("0x_invalid"):
-            return True
-            
-        if attempt < max_retries:
-            ctx.logger.warning(f"⏳ [Payment Pending] トランザクション未確定。{delay}秒後に再確認します...")
-            await asyncio.sleep(delay)
-            
-    return False
-
-# --------------------------------------------------
 # ⏱️ 定期タスク (CoinGecko スキャン & バックグラウンド処理)
 # --------------------------------------------------
 @agent.on_interval(period=60.0)
@@ -172,66 +133,35 @@ async def check_metal_markets_task(ctx: Context):
                     ctx.logger.info(f"🚨 [{cat_id.upper()} コモディティ急沸騰] {t.get('symbol','').upper()}: +{p_change:.2f}% (24h)")
 
 # --------------------------------------------------
-# 💰 見積もり ＆ 自動納品ハンドラー
+# 💰 直接レスポンス返信ハンドラー
 # --------------------------------------------------
 @agent.on_message(model=MetalDataQueryRequest)
 async def handle_metal_quote(ctx: Context, sender: str, msg: MetalDataQueryRequest):
     requested = (msg.symbol or "ALL").upper()
-    quoted_price = "0.5" if requested == "ALL" else "0.2"
+    ctx.logger.info(f"📩 [{sender}] からコモディティ照会受信: Target='{requested}'")
     
-    ctx.logger.info(f"📩 [{sender}] からコモディティ照会受信: Target='{requested}' ➔ 見積もり: {quoted_price} FET")
+    market_data = fetch_metal_market_data()
+    debt_metrics = fetch_us_debt_clock_metrics()
     
-    payment_quote = RequestPayment(
-        accepted_funds=[Funds(amount=quoted_price, currency="FET", payment_method="fet_direct")],
-        recipient=str(agent.wallet.address()),
-        deadline_seconds=300,
-        reference=f"quote_metal_{requested}_{int(time.time())}",
-        description=f"Tokenized Metals (PAXG/XAUT), CoinGecko Category & Mine Supply Constraints Intelligence ({requested})"
-    )
-    await ctx.send(sender, payment_quote)
-
-@agent.on_message(model=CommitPayment)
-async def handle_metal_delivery(ctx: Context, sender: str, msg: CommitPayment):
-    ctx.logger.info(f"💳 [{sender}] から着金確認通知を受信 (Tx: {msg.transaction_id})")
-    
-    # 🔄 X402 / uAgents Retry Verification の実行
-    is_verified = await verify_onchain_payment_with_retry(
-        ctx=ctx,
-        tx_id=msg.transaction_id,
-        expected_amount=msg.funds.amount,
-        max_retries=3,
-        delay=3.0
-    )
-    
-    if is_verified:
-        market_data = fetch_metal_market_data()
-        debt_metrics = fetch_us_debt_clock_metrics()
-        
-        response = MetalDataQueryResponse(
-            agent_version=CURRENT_VERSION,
-            timestamp=time.time(),
-            onchain_paxg_xaut=market_data["onchain_tokens"],
-            coingecko_metal_intelligence=latest_market_data,
-            comex_inventory_sentiment=market_data["comex_data"],
-            central_bank_gold_trends=market_data["central_bank_data"],
-            mine_supply_constraints=market_data["mine_supply_data"],
-            us_debt_macro_metrics=debt_metrics,
-            reasoning_summary=(
-                "High conviction in tokenized physical assets: "
-                "Global mine supply is plateauing while Central Banks directly absorb ~27.8% of new annual gold output. "
-                "Combined with COMEX vault drawdowns, CoinGecko Metal/Gold category trendings, X402 payment settlement demands, "
-                "and US Debt Clock inflation pressures ($39.9T+), "
-                "structural scarcity strongly underpins on-chain physical assets (PAXG/XAUT)."
-            )
+    response = MetalDataQueryResponse(
+        agent_version=CURRENT_VERSION,
+        timestamp=time.time(),
+        onchain_paxg_xaut=market_data["onchain_tokens"],
+        coingecko_metal_intelligence=latest_market_data,
+        comex_inventory_sentiment=market_data["comex_data"],
+        central_bank_gold_trends=market_data["central_bank_data"],
+        mine_supply_constraints=market_data["mine_supply_data"],
+        us_debt_macro_metrics=debt_metrics,
+        reasoning_summary=(
+            "High conviction in tokenized physical assets: "
+            "Global mine supply is plateauing while Central Banks directly absorb ~27.8% of new annual gold output. "
+            "Combined with COMEX vault drawdowns, CoinGecko Metal/Gold category trendings, X402 payment settlement demands, "
+            "and US Debt Clock inflation pressures ($39.9T+), "
+            "structural scarcity strongly underpins on-chain physical assets (PAXG/XAUT)."
         )
-        await ctx.send(sender, response)
-        ctx.logger.info(f"🎉 [{sender}] へコモディティ分析データを納品完了しました！")
-    else:
-        ctx.logger.error(f"❌ [{sender}] 着金検証失敗 (TxHash: {msg.transaction_id}) - 納品をキャンセルしました")
-        error_msg = ChatMessage(
-            message=f"⚠️ [HTTP 402 Payment Required] 着金確認がタイムアウトしました。TxHash '{msg.transaction_id}' を確認の上、再試行してください。"
-        )
-        await ctx.send(sender, error_msg)
+    )
+    await ctx.send(sender, response)
+    ctx.logger.info(f"🎉 [{sender}] へコモディティ分析データを納品完了しました！")
 
 @agent.on_event("startup")
 async def startup_handler(ctx: Context):
