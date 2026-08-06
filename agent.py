@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 import os
 from uagents import Agent, Context, Model, Protocol
 
-CURRENT_VERSION = "1.3.0"  # 👈 X402 Payment Verification & Retry Protocol Integrated
+CURRENT_VERSION = "1.3.0"
 
 AGENT_SEED = os.getenv("AGENT_SEED", "xxxxxxxxxxxxxxx")
 agent = Agent(name="onchain_event_agent")
